@@ -1,60 +1,11 @@
-try{
-	var environment = process.env;
-	environment = "nodejs";
-}catch( error ){
-	var environment = "browser";
-}
-try{
-	var base = window;
-	environment = "node-webkit";
-}catch( error ){
-	var base = exports;
-}
+try{ var base = window; }catch( error ){ var base = exports; }
 ( function module( base ){
-	try{
-		var moduleDefine = define; 
-	}catch( error ){
-		if( environment == "node-webkit" ){
-			//It means we can auto reload the requirejs module.
-			var fs = require( "fs" );
-			var libraryPath = process.cwd( ) + "/library/".replace( "/", path.sep );
-			if( fs.existsSync( libraryPath ) ){
-				//TODO: Find the script tag containing the requirejs
-				var scriptReferenceNode = document.getElementsByTagName( "head" );
-				var requirejsScriptLoaderNode = document.createElement( "script" );
-				requirejsScriptLoaderNode.setAttribute( "type", "text/javascript" );
-				requirejsScriptLoaderNode.setAttribute( "src",
-					libraryPath + "require/require.js" );
-				scriptReferenceNode.parentNode.insertBefore( requirejsScriptLoaderNode, scriptReferenceNode );
-			}
-		}
-		//TODO: Make this work for nodejs and browser environment.
-		var moduleDefine = function define( moduleName, dependencies, moduleConstruct ){
-			var parameters = Array.prototype.slice.apply( arguments );
-			if( typeof parameters[ 1 ] == "function" ){
-				moduleConstruct = parameters[ 1 ];
-			}
-			moduleConstruct( );
-		}
-	}
-	//TODO: Put the main construction for the module here
-	/*:
-		@required-environment:
-			[
-				"nodejs",
-				"node-webkit"
-			]
-		@end-required-environment
-	*/
 	define( "addBigNumber",
+		[
+			"argumentsToArray",
+			"work"
+		],
 		function construct( ){
-			var childprocess = require( "child_process" );
-			var fs = require( "fs" );
-			var path = require( "path" );
-			var pathDirectory = process.cwd( ) + "/add-big-number/".replace( "/", path.sep );
-			var javaClassFile = pathDirectory + "addBigNumber.class";
-			var isJavaClassFileExist = fs.existsSync( javaClassFile );
-
 			var addBigNumber = function addBigNumber( numbers, callback ){
 				var parameters = Array.prototype.slice.apply( arguments );
 				callback = parameters.pop( );
@@ -99,6 +50,7 @@ try{
 						}
 					} );
 			};
+			
 			base.addBigNumber = addBigNumber;
 		} );
 } )( base );
